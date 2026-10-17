@@ -103,3 +103,26 @@
   .env.
 
 ---
+
+Поменяй везде параметр конфигурации log.spec на log.filter.
+
+---
+
+● Вы переименовали файл в config.example.toml, доправляю его и оставшиеся места.
+
+  Ran 1 shell command 
+
+● Переименовал log.spec в log.filter. cargo make lint-test проходит.
+  
+  Что поменялось:
+  - crates/server/src/config.rs — поле LoggerConfig::filter и функция default_filter().
+  - crates/server/src/main.rs — читает config.log.filter.
+  - config.example.toml и ваш локальный config.toml — ключ filter = "info,freemax_server=debug".
+  - docs/architecture.md — строка в таблице конфигурации.
+
+  В issues/26-10-03 dev environment.md старое log.spec осталось только в записанной там переписке. Её я не менял, как и историю в других задачах.
+
+  Тесты бы такое переименование не поймали: в старом config.toml ключ spec молча игнорировался бы, и фильтр стал бы info по умолчанию. Если добавить #[serde(deny_unknown_fields)] на секции конфигурации,
+  неизвестные ключи станут ошибкой при запуске. Могу добавить.
+
+---

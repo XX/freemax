@@ -11,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
     let config = Config::load(opts.config)?;
 
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new(&config.log.spec))?)
+        .with_env_filter(EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new(&config.log.filter))?)
         .init();
 
     let db = PgPoolOptions::new()

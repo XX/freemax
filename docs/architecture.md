@@ -28,7 +28,7 @@
 | `http.port` | `8080` |
 | `database.url` | Postgres из `docker-compose.yml` |
 | `database.max_connections` | `10` |
-| `log.spec` | `info` (`RUST_LOG` имеет приоритет) |
+| `log.filter` | `info` (`RUST_LOG` имеет приоритет) |
 
 Вне `config.toml`: `DATABASE_URL` (`.env`) — для `#[sqlx::test]` и sqlx-cli; `FREEMAX_DB_PORT` — порт Postgres в docker-compose.
 

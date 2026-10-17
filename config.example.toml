@@ -8,4 +8,4 @@ max_connections = 10
 
 [log]
 # Синтаксис RUST_LOG; переменная RUST_LOG имеет приоритет.
-spec = "info,freemax_server=debug"
+filter = "info,freemax_server=debug"

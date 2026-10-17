@@ -69,20 +69,20 @@ impl DatabaseConfig {
 #[serde(default)]
 pub struct LoggerConfig {
     /// Фильтр `tracing` (синтаксис `RUST_LOG`); `RUST_LOG` имеет приоритет.
-    #[serde(default = "LoggerConfig::default_spec")]
-    pub spec: String,
+    #[serde(default = "LoggerConfig::default_filter")]
+    pub filter: String,
 }
 
 impl Default for LoggerConfig {
     fn default() -> Self {
         Self {
-            spec: Self::default_spec(),
+            filter: Self::default_filter(),
         }
     }
 }
 
 impl LoggerConfig {
-    pub fn default_spec() -> String {
+    pub fn default_filter() -> String {
         "info".into()
     }
 }

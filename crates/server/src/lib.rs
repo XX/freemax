@@ -15,7 +15,6 @@ pub use crate::error::{AppError, AppResult};
 pub mod config;
 pub mod error;
 
-/// Миграции из `migrations/` в корне репозитория.
 pub static MIGRATOR: Migrator = sqlx::migrate!("../../migrations");
 
 #[derive(Clone)]

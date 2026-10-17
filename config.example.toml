@@ -1,0 +1,11 @@
+[http]
+host = "127.0.0.1"
+port = 8080
+
+[database]
+url = "postgres://freemax:freemax@localhost:5432/freemax"
+max_connections = 10
+
+[log]
+# Синтаксис RUST_LOG; переменная RUST_LOG имеет приоритет.
+spec = "info,freemax_server=debug"

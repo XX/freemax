@@ -12,12 +12,14 @@
 ## Запуск
 
 ```sh
-cp .env.example .env    # указать DATABASE_URL
-cargo make run          # release; `cargo make run -p debug` — debug-сборка
-cargo make lint-test    # fmt + clippy + тесты (как в CI)
+cp config.example.toml config.toml   # конфигурация сервера
+cp .env.example .env                 # DATABASE_URL для тестов с БД
+docker compose up -d                 # Postgres на 127.0.0.1:5432
+cargo make run                       # release; `cargo make -p debug run` — debug-сборка
+cargo make lint-test                 # fmt + clippy + тесты (как в CI)
 ```
 
-Миграции применяются при старте сервера.
+Миграции применяются при старте сервера. Тесты с БД (`#[sqlx::test]`) создают временную базу на каждый тест через `DATABASE_URL`.
 
 Лицензия: MIT или Apache-2.0.
 

@@ -1,0 +1,21 @@
+# Postgres для локальной разработки и тестов.
+# Порт 5442, чтобы не конфликтовать с другими локальными Postgres.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: freemax
+      POSTGRES_PASSWORD: freemax
+      POSTGRES_DB: freemax
+    ports:
+      - "127.0.0.1:${FREEMAX_DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U freemax -d freemax"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

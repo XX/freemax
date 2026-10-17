@@ -18,6 +18,24 @@ jobs:
     name: Lint & Test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: freemax
+          POSTGRES_PASSWORD: freemax
+          POSTGRES_DB: freemax
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U freemax -d freemax"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+
+    env:
+      DATABASE_URL: postgres://freemax:freemax@localhost:5432/freemax
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

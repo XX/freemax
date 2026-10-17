@@ -14,13 +14,23 @@
 | `crates/core` (`freemax-core`) | Доменные типы и правила, без IO. |
 | `crates/server` (`freemax-server`, бинарь `freemax`) | HTTP, БД, шаблоны. |
 
-## Конфигурация (env)
+## Конфигурация
 
-| Переменная | По умолчанию |
-|------------|--------------|
-| `DATABASE_URL` | — (обязательна) |
-| `FREEMAX_ADDR` | `127.0.0.1:8080` |
-| `RUST_LOG` | `info` |
+Файл `config.toml` (образец — `config.example.toml`), загрузка через `config-load`. Источники по возрастанию приоритета:
+
+1. файл из `FREEMAX_ROOT_CONFIG`;
+2. файл из `--config` или первый `config.toml` в текущем и родительских каталогах;
+3. переменные окружения `FREEMAX_<СЕКЦИЯ>__<КЛЮЧ>`, например `FREEMAX_HTTP__PORT=8090`.
+
+| Ключ | По умолчанию |
+|------|--------------|
+| `http.host` | `127.0.0.1` |
+| `http.port` | `8080` |
+| `database.url` | Postgres из `docker-compose.yml` |
+| `database.max_connections` | `10` |
+| `log.spec` | `info` (`RUST_LOG` имеет приоритет) |
+
+Вне `config.toml`: `DATABASE_URL` (`.env`) — для `#[sqlx::test]` и sqlx-cli; `FREEMAX_DB_PORT` — порт Postgres в docker-compose.
 
 ## Соглашения
 
@@ -30,3 +40,5 @@
 - CI: `.github/workflows/ci.yml` — `cargo make lint` и `cargo make test` на `main`/`dev`.
 - Задачи: `issues/` — по файлу на задачу.
 - ID — UUID v7.
+- Ошибки обработчиков — `AppError` (`crates/server/src/error.rs`); детали внутренних ошибок только в лог.
+- Тесты с БД — `#[sqlx::test(migrator = "freemax_server::MIGRATOR")]` в `crates/server/tests/`.

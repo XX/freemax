@@ -6,5 +6,6 @@ Freemax — сервис свободного обмена (Rust: tokio, axum, s
 - `crates/core` — домен без IO; `crates/server` — axum + БД + рендеринг.
 - Схема БД меняется только новой миграцией в `migrations/`.
 - Команды: `cargo make run` (`-p debug` — debug), `cargo make lint-test` — fmt + clippy + тесты, как в CI.
+- Конфигурация сервера: `config.toml` (образец `config.example.toml`), переопределение через `FREEMAX_<СЕКЦИЯ>__<КЛЮЧ>`.
 - TOML форматируется taplo (`.taplo.toml`).
 - `issues/` — задачи в markdown, по файлу на задачу.

@@ -5,7 +5,7 @@
 - **tokio** — рантайм.
 - **axum 0.8** — HTTP, маршрутизация.
 - **PostgreSQL + sqlx** — хранилище, миграции (`migrations/`, применяются при старте).
-- **hypertext + wingy-hypertext** (`dev`) — серверный рендеринг компонентов Web Awesome, интерактивность через htmx.
+- **hypertext + wingy-hypertext** (`dev`) — серверный рендеринг компонентов Web UI, интерактивность через htmx.
 
 ## Крейты
 

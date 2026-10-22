@@ -1,6 +1,7 @@
 [http]
 host = "127.0.0.1"
 port = 8080
+webassets_dir = "target/web"
 
 [database]
 url = "postgres://freemax:freemax@localhost:5432/freemax"

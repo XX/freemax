@@ -13,6 +13,24 @@
 |-------|------------|
 | `crates/core` (`freemax-core`) | Доменные типы и правила, без IO. |
 | `crates/server` (`freemax-server`, бинарь `freemax`) | HTTP, БД, шаблоны. |
+| `crates/client` (`freemax-client`) | WASM: поведение компонентов wingy-hypertext; `webassets/` — main.js/css, htmx. |
+
+## Интерфейс
+
+- Обработчик возвращает `View` (заголовок + содержимое основной области). Middleware `view::render_layout` оборачивает его в полную страницу или, для htmx-запроса (`HX-Request`, кроме восстановления истории), во фрагмент: `<title>`, содержимое и навигация с `hx-swap-oob`.
+- Ошибки (`AppError`) рендерятся так же, в общем layout; htmx подставляет и ответы 4xx/5xx (`main.js`).
+- Локализация (ru по умолчанию, en) — Fluent через `fluent-templates`, см. ниже.
+- Статика собирается `cargo make client` в `target/web` (стили — из версии wingy-hypertext в `Cargo.lock`) и раздаётся по `/webassets` из `http.webassets_dir`.
+
+## Локализация
+
+- Сообщения — `crates/server/locales/<язык>/*.ftl`, встраиваются в бинарник при сборке. Набор идентификаторов во всех языках одинаков (тест `i18n::tests::locales_are_complete`).
+- Язык запроса (`i18n::Locale`): cookie `lang` → `Accept-Language` → `ru`. Middleware `i18n::detect_locale` кладёт его в расширения запроса; обработчики получают `Locale` экстрактором, `render_layout` — из расширений.
+- Текст: `locale.t("id")`. Нет сообщения — ошибка в лог и сам идентификатор вместо текста.
+- `AppError` языка не знает: отдаёт `view::ErrorView`, текст подставляет `render_layout`.
+- `crates/core` текстов не содержит: ошибки и состояния домена — enum'ы, текстом их делает сервер.
+- Переключатель в шапке (`view/language.rs`, `freemax-client/src/language.rs`) пишет cookie, очищает кэш истории htmx и перезагружает страницу.
+- Ответы с layout несут `Vary: hx-request, cookie, accept-language`.
 
 ## Конфигурация
 
@@ -26,6 +44,7 @@
 |------|--------------|
 | `http.host` | `127.0.0.1` |
 | `http.port` | `8080` |
+| `http.webassets_dir` | `target/web` |
 | `database.url` | Postgres из `docker-compose.yml` |
 | `database.max_connections` | `10` |
 | `log.filter` | `info` (`RUST_LOG` имеет приоритет) |
@@ -34,7 +53,7 @@
 
 ## Соглашения
 
-- Сборка и проверки — через `cargo make` (`Makefile.toml`): `run`, `lint`, `test`, `lint-test`; профиль `-p debug`.
+- Сборка и проверки — через `cargo make` (`Makefile.toml`): `run`, `client`, `lint`, `test`, `lint-test`; профиль `-p debug`.
 - Форматирование: `cargo +nightly fmt` (`.rustfmt.toml`, ширина 120); TOML — taplo (`.taplo.toml`).
 - Линты: `cargo clippy --all-targets -- -D warnings`.
 - CI: `.github/workflows/ci.yml` — `cargo make lint` и `cargo make test` на `main`/`dev`.

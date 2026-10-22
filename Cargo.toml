@@ -7,14 +7,26 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 
+[profile.release]
+lto = true
+
+[profile.wasm-release]
+inherits = "release"
+codegen-units = 1
+panic = "abort"
+strip = "debuginfo"
+
 [workspace.dependencies]
 anyhow = "1.0"
 axum = "0.8"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4.5", features = ["derive"] }
 config-load = "0.1"
+fluent-syntax = "0.12"
+fluent-templates = "0.15"
 http-body-util = "0.1"
 hypertext = { git = "https://github.com/XX/hypertext", branch = "dev", features = ["axum", "htmx"] }
+iconic = { git = "https://github.com/XX/iconic", features = ["hypertext", "fontawesome", "fontawesome-ext"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sqlx = { version = "0.9", features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono", "json", "migrate"] }
@@ -25,6 +37,10 @@ tower-http = { version = "0.6", features = ["trace", "fs"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1.28", features = ["v7", "serde"] }
+wasm-bindgen = "0.2"
+wasm-dom = "2.2"
+web-sys = "0.3"
 wingy-hypertext = { git = "https://github.com/XX/wingy-hypertext", branch = "dev" }
+wingy-hypertext-web = { git = "https://github.com/XX/wingy-hypertext", branch = "dev" }
 
 freemax-core = { path = "crates/core" }

@@ -7,7 +7,7 @@ use tower::ServiceExt;
 
 #[sqlx::test(migrator = "freemax_server::MIGRATOR")]
 async fn health_ok(db: PgPool) {
-    let response = router(AppState { db })
+    let response = router(AppState { db }, "target/web")
         .oneshot(Request::get("/health").body(Body::empty()).unwrap())
         .await
         .unwrap();

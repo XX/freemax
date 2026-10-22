@@ -14,6 +14,10 @@ pub struct HttpConfig {
 
     #[serde(default = "HttpConfig::default_port")]
     pub port: u16,
+
+    /// Каталог статики, собранной `cargo make client`.
+    #[serde(default = "HttpConfig::default_webassets_dir")]
+    pub webassets_dir: PathBuf,
 }
 
 impl Default for HttpConfig {
@@ -21,6 +25,7 @@ impl Default for HttpConfig {
         Self {
             host: Self::default_host(),
             port: Self::default_port(),
+            webassets_dir: Self::default_webassets_dir(),
         }
     }
 }
@@ -32,6 +37,10 @@ impl HttpConfig {
 
     pub const fn default_port() -> u16 {
         8080
+    }
+
+    pub fn default_webassets_dir() -> PathBuf {
+        "target/web".into()
     }
 }
 
@@ -140,6 +149,7 @@ mod tests {
 
         assert_eq!(config.http.host, default.http.host);
         assert_eq!(config.http.port, default.http.port);
+        assert_eq!(config.http.webassets_dir, default.http.webassets_dir);
         assert_eq!(config.database.url, default.database.url);
         assert_eq!(config.database.max_connections, default.database.max_connections);
     }

@@ -23,6 +23,7 @@ async fn main() -> anyhow::Result<()> {
     let addr = (config.http.host.as_str(), config.http.port);
     let listener = tokio::net::TcpListener::bind(addr).await?;
     tracing::info!("listening on http://{}", listener.local_addr()?);
-    axum::serve(listener, router(AppState { db })).await?;
+    axum::serve(listener, router(AppState { db }, &config.http.webassets_dir)).await?;
+
     Ok(())
 }

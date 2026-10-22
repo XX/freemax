@@ -12,6 +12,7 @@ PROFILE = "release"
 PROFILE_BUILD_DIR = "${PROFILE}"
 
     [tasks.choose-profile.env.debug]
+    RUSTFLAGS = "--cfg=web_sys_unstable_apis"
     PROFILE = "dev"
     PROFILE_BUILD_DIR = "debug"
 
@@ -26,6 +27,100 @@ PROFILE_BUILD_DIR = "${PROFILE}"
     PROFILE_BUILD_DIR = "debug"
 
 
+[tasks.build-client]
+command = "cargo"
+toolchain = "stable"
+args = ["build", "-p", "freemax-client", "--target", "wasm32-unknown-unknown", "--profile", "${PROFILE}"]
+dependencies = ["choose-profile-web"]
+
+[tasks.clean-static]
+script_runner = "@duckscript"
+script = '''
+keep = set ${TARGET_DIR}/web/dist
+entries = glob_array ${TARGET_DIR}/web/*
+for entry in ${entries}
+    if not equals ${entry} ${keep}
+        rm -r ${entry}
+    end
+end
+'''
+
+[tasks.clean-dist]
+script_runner = "@duckscript"
+script = '''
+rm -r ${TARGET_DIR}/web/dist
+'''
+
+# Стили берутся из той версии wingy-hypertext, что зафиксирована в Cargo.lock.
+[tasks.copy-wingy-style]
+script_runner = "@duckscript"
+script = '''
+output = exec --fail-on-error cargo metadata --format-version 1 --locked
+metadata = json_parse --collection ${output.stdout}
+packages = map_get ${metadata} packages
+manifest = set ""
+for package in ${packages}
+    name = map_get ${package} name
+    if eq ${name} "wingy-hypertext"
+        manifest = map_get ${package} manifest_path
+    end
+end
+release --recursive ${metadata}
+assert ${manifest} "wingy-hypertext is not found in cargo metadata"
+
+# manifest_path: <repo>/crates/lib/Cargo.toml
+lib_dir = dirname ${manifest}
+crates_dir = dirname ${lib_dir}
+repo_dir = dirname ${crates_dir}
+cp ${repo_dir}/webassets/style ${TARGET_DIR}/web
+'''
+dependencies = ["clean-static"]
+
+[tasks.copy-static]
+script_runner = "@duckscript"
+script = '''
+glob_cp crates/client/webassets/**/* ${TARGET_DIR}/web/
+'''
+dependencies = ["copy-wingy-style"]
+
+[tasks.deploy-client]
+command = "wasm-bindgen"
+args = [
+    "--target",
+    "web",
+    "--no-typescript",
+    "--remove-name-section",
+    "--remove-producers-section",
+    "--out-dir",
+    "${TARGET_DIR}/web/dist",
+    "--out-name",
+    "client",
+    "${TARGET_DIR}/wasm32-unknown-unknown/${PROFILE_BUILD_DIR}/freemax_client.wasm",
+]
+dependencies = ["clean-dist"]
+
+# Уменьшает wasm через `wasm-opt` (binaryen); для debug-сборки пропускается.
+[tasks.optimize-client]
+condition = { env = { "PROFILE" = "wasm-release" } }
+command = "wasm-opt"
+args = [
+    "-Oz",
+    "--strip-debug",
+    "-o",
+    "${TARGET_DIR}/web/dist/client_bg.wasm",
+    "${TARGET_DIR}/web/dist/client_bg.wasm",
+]
+
+[tasks.client]
+condition = { files_modified = { input = [
+    "${TARGET_DIR}/wasm32-unknown-unknown/${PROFILE_BUILD_DIR}/freemax_client.wasm",
+], output = [
+    "${TARGET_DIR}/web/dist/client_bg.wasm",
+] } }
+run_task = { name = ["deploy-client", "optimize-client"] }
+dependencies = ["build-client", "copy-static"]
+
+
 [tasks.run-server]
 command = "cargo"
 toolchain = "stable"
@@ -34,6 +129,7 @@ dependencies = ["choose-profile"]
 
 [tasks.run]
 run_task = "run-server"
+dependencies = ["client"]
 
 
 [tasks.fmt-check]

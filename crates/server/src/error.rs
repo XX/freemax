@@ -1,6 +1,8 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 
+use crate::view;
+
 pub type AppResult<T> = Result<T, AppError>;
 
 /// Ошибка обработчика, превращаемая в HTTP-ответ.
@@ -42,15 +44,16 @@ impl From<sqlx::Error> for AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let status = self.status();
-        let message = match &self {
+        let message = match self {
+            Self::BadRequest(message) => Some(message),
+            Self::Forbidden | Self::NotFound => None,
             // Детали внутренних ошибок только в лог, не клиенту.
             Self::Internal(err) => {
                 tracing::error!("internal error: {err:#}");
-                "internal server error".to_owned()
+                None
             },
-            err => err.to_string(),
         };
-        (status, message).into_response()
+        (status, view::ErrorView { message }).into_response()
     }
 }
 

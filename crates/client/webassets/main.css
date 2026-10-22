@@ -1,0 +1,47 @@
+@import url("/webassets/style/index.css");
+
+/* Иконка переключателя цветовой схемы показывает текущую схему. */
+.wa-dark .only-light,
+:root:not(.wa-dark) .only-dark {
+    display: none;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--wa-space-xs);
+    color: inherit;
+    text-decoration: none;
+}
+
+.brand-icon {
+    color: var(--wa-color-brand-fill-loud);
+    font-size: 1.5em;
+}
+
+.page-menu-nav a[aria-current="page"] {
+    font-weight: var(--wa-font-weight-bold);
+    color: var(--wa-color-brand-on-quiet);
+}
+
+/* Обход двух проблем layout `Page` из wingy-hypertext:
+ * - у `main` нет grid-area, и без `aside` он попадает не в ту колонку;
+ * - контейнерный запрос задаёт `--menu-width` самому `.page`, а на контейнер он не действует,
+ *   поэтому на узком экране колонки меню и aside не схлопываются. Переменные задаются потомку. */
+.page-body > main {
+    grid-area: main;
+}
+
+@container page (width < 920px) {
+    .page-body {
+        --menu-width: 0px;
+        --aside-width: 0px;
+    }
+}
+
+.main-content {
+    width: 100%;
+    max-width: 80ch;
+    padding: var(--wa-space-xl);
+    margin-inline: auto;
+}

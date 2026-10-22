@@ -1,12 +1,13 @@
 //! HTTP-сервер Freemax.
 
-use axum::Router;
+use std::path::Path;
+
 use axum::extract::State;
-use axum::response::IntoResponse;
 use axum::routing::get;
-use hypertext::prelude::*;
+use axum::{Router, middleware};
 use sqlx::PgPool;
 use sqlx::migrate::Migrator;
+use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
 
 pub use crate::config::Config;
@@ -14,6 +15,8 @@ pub use crate::error::{AppError, AppResult};
 
 pub mod config;
 pub mod error;
+pub mod i18n;
+pub mod view;
 
 pub static MIGRATOR: Migrator = sqlx::migrate!("../../migrations");
 
@@ -22,22 +25,19 @@ pub struct AppState {
     pub db: PgPool,
 }
 
-pub fn router(state: AppState) -> Router {
+/// Маршруты приложения; статика из `webassets_dir` раздаётся по `/webassets`.
+pub fn router(state: AppState, webassets_dir: impl AsRef<Path>) -> Router {
     Router::new()
-        .route("/", get(index))
+        .route("/", get(async |locale| view::page::index(locale)))
+        .route("/circles", get(async |locale| view::page::circles(locale)))
+        .route("/about", get(async |locale| view::page::about(locale)))
         .route("/health", get(health))
+        .fallback(async || AppError::NotFound)
+        .layer(middleware::from_fn(view::render_layout))
+        .layer(middleware::from_fn(i18n::detect_locale))
+        .nest_service("/webassets", ServeDir::new(webassets_dir))
         .layer(TraceLayer::new_for_http())
         .with_state(state)
-}
-
-async fn index() -> impl IntoResponse {
-    rsx! {
-        <!DOCTYPE html>
-        <html lang="ru">
-            <head><meta charset="utf-8"><title>"Freemax"</title></head>
-            <body><h1>"Freemax — свободный обмен"</h1></body>
-        </html>
-    }
 }
 
 /// Проверка живости, включая доступность БД.

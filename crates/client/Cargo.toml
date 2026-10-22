@@ -1,0 +1,15 @@
+[package]
+name = "freemax-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { workspace = true }
+wasm-dom = { workspace = true }
+web-sys = { workspace = true, features = ["CustomEvent", "Event", "HtmlDocument"] }
+wingy-hypertext = { workspace = true }
+wingy-hypertext-web = { workspace = true }

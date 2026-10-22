@@ -13,8 +13,10 @@ anyhow = { workspace = true }
 axum = { workspace = true }
 clap = { workspace = true }
 config-load = { workspace = true }
+fluent-templates = { workspace = true }
 freemax-core = { workspace = true }
 hypertext = { workspace = true }
+iconic = { workspace = true }
 serde = { workspace = true }
 sqlx = { workspace = true }
 thiserror = { workspace = true }
@@ -26,5 +28,6 @@ uuid = { workspace = true }
 wingy-hypertext = { workspace = true }
 
 [dev-dependencies]
+fluent-syntax = { workspace = true }
 http-body-util = { workspace = true }
 tower = { workspace = true }
